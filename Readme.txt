@@ -14,6 +14,11 @@ Calculate marketing ROI, revenue, profit and ROAS, capture leads, and export fil
 
 Tech Akhil Marketing ROI Calculator helps estimate campaign performance, calculate profitability, and capture leads with configurable marketing templates.
 
+== Source Code ==
+
+The human-readable source code and development documentation are available at:
+https://github.com/techakhilofficial/tech-akhil-marketing-roi-calculator
+
 == Changelog ==
 
 = 2.9.6 =
