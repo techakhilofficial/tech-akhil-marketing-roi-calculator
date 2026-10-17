@@ -3,7 +3,7 @@
  * Plugin Name: Tech Akhil Marketing ROI Calculator
  * Plugin URI: https://techakhil.com/digital-marketing-roi-calculator/
  * Description: A configurable marketing ROI calculator with lead capture, template controls, UTM attribution and CSV export.
- * Version: 2.9.6
+ * Version: 2.9.8
  * Author: Akhilesh Kumar Meena
  * Author URI: https://techakhil.com/akhilesh-kumar-meena/
  * License: GPLv2 or later
@@ -14,7 +14,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'DM_ROI_VERSION', '2.9.6' );
+define( 'DM_ROI_VERSION', '2.9.8' );
 define( 'DM_ROI_TABLE_SUFFIX', 'roi_calculator_leads' );
 
 function dm_roi_table_name() {
@@ -191,17 +191,31 @@ function dm_roi_shortcode( $atts = array() ) {
         if ( $is_fixed_template ) { return '<div class="dm-roi-notice">' . esc_html__( 'This calculator template is currently disabled by the site administrator.', 'tech-akhil-marketing-roi-calculator' ) . '</div>'; }
         $template = $enabled_templates[0];
     }
-    $primary = $s['template_colors'][ $template ] ?? $primary;
+    $primary = sanitize_hex_color( $s['template_colors'][ $template ] ?? $primary ) ?: '#9d174d';
     $wa = $s['wa_enable'] === '1' && preg_match( '/^[0-9]{8,15}$/', $s['wa_number'] );
+    $button_radius = isset( $s['button_radius'] ) && $s['button_radius'] === 'square' ? '3px' : ( isset( $s['button_radius'] ) && $s['button_radius'] === 'pill' ? '999px' : '8px' );
+
+    // Load external assets and attach only the per-instance dynamic values via the WordPress style API.
+    wp_enqueue_style( 'dm-roi-frontend', plugins_url( 'assets/dm-roi-frontend.css', __FILE__ ), array(), DM_ROI_VERSION );
+    wp_enqueue_script( 'dm-roi-frontend', plugins_url( 'assets/dm-roi-frontend.js', __FILE__ ), array(), DM_ROI_VERSION, true );
+    $instance_css = sprintf(
+        '#%1$s{--dm-primary:%2$s;--dm-card:%3$s;--dm-button-radius:%4$s;}',
+        esc_attr( $id ),
+        $primary,
+        $card,
+        $button_radius
+    );
+    wp_add_inline_style( 'dm-roi-frontend', $instance_css );
+
     ob_start(); ?>
-    <div id="<?php echo esc_attr( $id ); ?>" class="dm-roi-widget <?php echo $s['theme'] === 'dark' ? 'dm-roi-dark' : ''; ?>" style="--dm-primary:<?php echo esc_attr( $primary ); ?>;--dm-card:<?php echo esc_attr( $card ); ?>;--dm-button-radius:<?php echo $s['button_radius'] === 'square' ? '3px' : ( $s['button_radius'] === 'pill' ? '999px' : '8px' ); ?>" data-template="<?php echo esc_attr( $template ); ?>" data-currency="<?php echo esc_attr( $s['currency'] ); ?>" data-symbol="<?php echo esc_attr( $symbol ); ?>" data-primary="<?php echo esc_attr( $primary ); ?>" data-enabled-templates="<?php echo esc_attr( wp_json_encode( $enabled_templates ) ); ?>" data-template-colors="<?php echo esc_attr( wp_json_encode( $s['template_colors'] ) ); ?>" data-template-definitions="<?php echo esc_attr( wp_json_encode( $templates ) ); ?>" data-powered-by="<?php echo esc_attr( $s['powered_by'] ); ?>" data-ajax="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'dm_roi_lead_nonce' ) ); ?>" data-wa="<?php echo $wa ? '1' : '0'; ?>" data-wa-number="<?php echo esc_attr( $s['wa_number'] ); ?>" data-wa-message="<?php echo esc_attr( $s['wa_message'] ); ?>">
+    <div id="<?php echo esc_attr( $id ); ?>" class="dm-roi-widget <?php echo $s['theme'] === 'dark' ? 'dm-roi-dark' : ''; ?>" data-template="<?php echo esc_attr( $template ); ?>" data-currency="<?php echo esc_attr( $s['currency'] ); ?>" data-symbol="<?php echo esc_attr( $symbol ); ?>" data-primary="<?php echo esc_attr( $primary ); ?>" data-enabled-templates="<?php echo esc_attr( wp_json_encode( $enabled_templates ) ); ?>" data-template-colors="<?php echo esc_attr( wp_json_encode( $s['template_colors'] ) ); ?>" data-template-definitions="<?php echo esc_attr( wp_json_encode( $templates ) ); ?>" data-powered-by="<?php echo esc_attr( $s['powered_by'] ); ?>" data-ajax="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'dm_roi_lead_nonce' ) ); ?>" data-wa="<?php echo $wa ? '1' : '0'; ?>" data-wa-number="<?php echo esc_attr( $s['wa_number'] ); ?>" data-wa-message="<?php echo esc_attr( $s['wa_message'] ); ?>">
 
       <h2><?php echo esc_html( $title ); ?></h2>
       <div class="dm-roi-template-identity" data-template-identity aria-live="polite"><span class="dm-roi-template-identity-icon" data-template-icon aria-hidden="true"><?php echo esc_html( $templates[ $template ]['icon'] ); ?></span><div><strong data-template-label><?php echo esc_html( $templates[ $template ]['label'] ); ?></strong><span>Campaign ROI Calculator</span></div></div>
       <p class="dm-roi-intro"><?php echo esc_html__( 'Enter your campaign assumptions to estimate performance. Results are estimates, not guarantees.', 'tech-akhil-marketing-roi-calculator' ); ?></p>
       <form class="dm-roi-form" method="post" action="#dm-roi-calculator" novalidate>
         <?php if ( ! $is_fixed_template ) : ?>
-        <div class="dm-roi-template-picker" style="margin:0 0 16px">
+        <div class="dm-roi-template-picker">
           <label for="<?php echo esc_attr( $id ); ?>-platform"><?php esc_html_e( 'Marketing Platform / Campaign Type', 'tech-akhil-marketing-roi-calculator' ); ?></label>
           <select id="<?php echo esc_attr( $id ); ?>-platform" class="dm-roi-platform" name="platform">
             <?php foreach ( $enabled_templates as $template_slug ) : ?><option value="<?php echo esc_attr( $template_slug ); ?>" data-color="<?php echo esc_attr( $s['template_colors'][ $template_slug ] ); ?>" <?php selected( $template_slug, $template ); ?>><?php echo esc_html( $templates[ $template_slug ]['icon'] . ' ' . $templates[ $template_slug ]['label'] ); ?></option><?php endforeach; ?>
@@ -288,7 +302,6 @@ function dm_roi_shortcode( $atts = array() ) {
         <div class="dm-roi-metric" data-output="email_opens" hidden><span>Unique Email Opens</span><strong data-metric="email_opens">—</strong></div>
       </div><div class="dm-roi-actions"><?php if ( $s['show_pdf'] === '1' ) : ?><button type="button" class="dm-roi-btn dm-roi-print"><?php esc_html_e( 'Print / Save PDF', 'tech-akhil-marketing-roi-calculator' ); ?></button><?php endif; ?><a class="dm-roi-btn dm-roi-whatsapp" href="#" target="_blank" rel="noopener noreferrer" hidden><?php esc_html_e( 'Discuss on WhatsApp', 'tech-akhil-marketing-roi-calculator' ); ?></a></div></section>
     </div>
-    <?php wp_enqueue_style( 'dm-roi-frontend', plugins_url( 'assets/dm-roi-frontend.css', __FILE__ ), array(), DM_ROI_VERSION ); wp_enqueue_script( 'dm-roi-frontend', plugins_url( 'assets/dm-roi-frontend.js', __FILE__ ), array(), DM_ROI_VERSION, true ); ?>
 
     <?php
     return ob_get_clean();
@@ -417,7 +430,7 @@ function dm_roi_settings_page() {
           <label class="dm-roi-setting-card"><span>Card background</span><input id="dm-card" type="color" name="card_color" value="<?php echo esc_attr( $s['card_color'] ); ?>"><small>Background colour for calculator cards.</small></label>
           <label class="dm-roi-setting-card"><span>Theme</span><select id="dm-theme" name="theme"><option value="light" <?php selected( $s['theme'], 'light' ); ?>>Light</option><option value="dark" <?php selected( $s['theme'], 'dark' ); ?>>Dark</option></select><small>Choose a light or dark calculator theme.</small></label>
           <label class="dm-roi-setting-card"><span>Button shape</span><select id="dm-radius" name="button_radius"><option value="rounded" <?php selected( isset( $s['button_radius'] ) ? $s['button_radius'] : 'rounded', 'rounded' ); ?>>Rounded</option><option value="square" <?php selected( isset( $s['button_radius'] ) ? $s['button_radius'] : 'rounded', 'square' ); ?>>Square</option><option value="pill" <?php selected( isset( $s['button_radius'] ) ? $s['button_radius'] : 'rounded', 'pill' ); ?>>Pill</option></select><small>Controls the shape of calculator buttons.</small></label>
-        </div><div class="dm-roi-live-preview"><h3>Live preview</h3><div id="dm-roi-preview" style="background:<?php echo esc_attr( $s['card_color'] ); ?>"><h3 id="dm-roi-preview-title" style="color:<?php echo esc_attr( $s['primary_color'] ); ?>"><?php echo esc_html( $s['title'] ); ?></h3><button type="button" id="dm-roi-preview-button" class="button button-primary" style="background:<?php echo esc_attr( $s['primary_color'] ); ?>;border-color:<?php echo esc_attr( $s['primary_color'] ); ?>;border-radius:<?php echo isset( $s['button_radius'] ) && $s['button_radius'] === 'pill' ? '999px' : ( isset( $s['button_radius'] ) && $s['button_radius'] === 'square' ? '3px' : '8px' ); ?>"><?php echo esc_html( $s['button_text'] ); ?></button></div></div></section>
+        </div><div class="dm-roi-live-preview"><h3>Live preview</h3><div id="dm-roi-preview" class="dm-roi-preview-surface"><h3 id="dm-roi-preview-title" class="dm-roi-preview-title"><?php echo esc_html( $s['title'] ); ?></h3><button type="button" id="dm-roi-preview-button" class="button button-primary dm-roi-preview-button"><?php echo esc_html( $s['button_text'] ); ?></button></div></div></section>
         <section class="dm-roi-settings-panel" data-panel-content="whatsapp" role="tabpanel" hidden><div class="dm-roi-panel-heading"><div><h2>WhatsApp & sharing</h2><p>Configure the WhatsApp follow-up shown after a successful lead submission.</p></div></div><div class="dm-roi-settings-grid">
           <div class="dm-roi-setting-card"><label><input type="checkbox" name="wa_enable" value="1" <?php checked( $s['wa_enable'], '1' ); ?>> <strong>Enable WhatsApp link</strong></label><small>Show the WhatsApp action after a successful lead save.</small></div>
           <label class="dm-roi-setting-card"><span>WhatsApp phone number</span><input id="dm-wa-number" name="wa_number" value="<?php echo esc_attr( $s['wa_number'] ); ?>" placeholder="919876543210"><small>Country code plus number, digits only.</small></label>
@@ -553,7 +566,7 @@ function dm_roi_leads_page() {
     $templates = dm_roi_templates();
     ?>
     <div class="wrap dm-roi-leads-page"><h1>Tech Akhil ROI — Leads <a class="page-title-action" href="<?php echo esc_url( $export_url ); ?>">Export CSV</a></h1><p>Filter saved leads by date range, template or search. The CSV export uses the same filters.</p>
-    <form method="get" class="dm-roi-admin-filters"><?php wp_nonce_field( 'dm_roi_filter_leads', 'dm_roi_filter_nonce' ); ?><input type="hidden" name="page" value="dm-roi-leads"><div class="dm-roi-date-row"><div class="dm-roi-filter-field"><label for="dm-roi-date-from"><strong>Start date</strong></label><input id="dm-roi-date-from" type="date" name="date_from" value="<?php echo esc_attr( $from ); ?>"></div><div class="dm-roi-filter-field"><label for="dm-roi-date-to"><strong>End date</strong></label><input id="dm-roi-date-to" type="date" name="date_to" value="<?php echo esc_attr( $to ); ?>"></div><div class="dm-roi-filter-field"><label for="dm-roi-template"><strong>Template</strong></label><select id="dm-roi-template" name="template"><option value="">All templates</option><?php foreach ( $templates as $slug => $def ) : ?><option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $template, $slug ); ?>><?php echo esc_html( $def['label'] ); ?></option><?php endforeach; ?></select></div><button class="button button-primary" type="submit">Apply filters</button><a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=dm-roi-leads' ) ); ?>">Reset filters</a></div><div class="dm-roi-search-row"><div class="dm-roi-filter-field" style="flex:1"><label for="dm-roi-search"><strong>Search leads</strong></label><input id="dm-roi-search" type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="Name, email, phone or campaign"></div><button class="button" type="submit">Search</button></div></form>
+    <form method="get" class="dm-roi-admin-filters"><?php wp_nonce_field( 'dm_roi_filter_leads', 'dm_roi_filter_nonce' ); ?><input type="hidden" name="page" value="dm-roi-leads"><div class="dm-roi-date-row"><div class="dm-roi-filter-field"><label for="dm-roi-date-from"><strong>Start date</strong></label><input id="dm-roi-date-from" type="date" name="date_from" value="<?php echo esc_attr( $from ); ?>"></div><div class="dm-roi-filter-field"><label for="dm-roi-date-to"><strong>End date</strong></label><input id="dm-roi-date-to" type="date" name="date_to" value="<?php echo esc_attr( $to ); ?>"></div><div class="dm-roi-filter-field"><label for="dm-roi-template"><strong>Template</strong></label><select id="dm-roi-template" name="template"><option value="">All templates</option><?php foreach ( $templates as $slug => $def ) : ?><option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $template, $slug ); ?>><?php echo esc_html( $def['label'] ); ?></option><?php endforeach; ?></select></div><button class="button button-primary" type="submit">Apply filters</button><a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=dm-roi-leads' ) ); ?>">Reset filters</a></div><div class="dm-roi-search-row"><div class="dm-roi-filter-field dm-roi-filter-search-field"><label for="dm-roi-search"><strong>Search leads</strong></label><input id="dm-roi-search" type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="Name, email, phone or campaign"></div><button class="button" type="submit">Search</button></div></form>
     <div class="dm-roi-leads-table-wrap"><table class="wp-list-table widefat striped"><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Phone</th><th>Template</th><th>Budget</th><th>ROI</th><th>ROAS</th><th>Revenue</th><th>Profit</th><th>Campaign / UTM</th></tr></thead><tbody>
     <?php if ( $leads ) : foreach ( $leads as $lead ) : $lead_template = ! empty( $lead->template ) ? $lead->template : ( preg_match( '/^([a-z0-9-]+)\s+-\s+/i', (string) $lead->campaign, $m ) ? $m[1] : '' ); ?><tr><td><?php echo esc_html( $lead->created_at ); ?></td><td><?php echo esc_html( $lead->name ); ?></td><td><?php echo esc_html( $lead->email ); ?></td><td><?php echo esc_html( $lead->phone ); ?></td><td><?php echo esc_html( isset( $templates[ $lead_template ] ) ? $templates[ $lead_template ]['label'] : ( $lead_template ?: '—' ) ); ?></td><td><?php echo esc_html( $lead->budget ); ?></td><td><?php echo esc_html( strpos( (string) $lead->estimated_roi, '%' ) !== false ? $lead->estimated_roi : $lead->estimated_roi . '%' ); ?></td><td><?php echo esc_html( $lead->estimated_roas ); ?>x</td><td><?php echo esc_html( $lead->estimated_revenue ); ?></td><td><?php echo esc_html( $lead->estimated_profit ); ?></td><td><?php echo esc_html( $lead->campaign . ' / ' . $lead->source . ' / ' . $lead->utm_campaign ); ?></td></tr><?php endforeach; else : ?><tr><td colspan="11">No leads match these filters.</td></tr><?php endif; ?>
     </tbody></table></div><?php dm_roi_admin_brand_footer(); ?></div>
