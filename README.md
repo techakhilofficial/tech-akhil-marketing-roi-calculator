@@ -14,17 +14,26 @@ This repository provides the human-readable source code and development document
 
 ## Development
 
-The plugin's frontend JavaScript source is maintained in `assets/src/dm-roi-frontend.js`. The frontend script loaded by the plugin is `assets/dm-roi-frontend.js`.
+The plugin maintains human-readable source files in `assets/src/` and runtime files in `assets/`.
 
-The source and served files should be kept synchronized whenever the frontend code changes. Before releasing an update, verify that the source file and served file contain equivalent code and test the plugin in WordPress.
+Source files:
 
-Other plugin assets include:
+- `assets/src/dm-roi-frontend.js` — frontend JavaScript source
+- `assets/src/dm-roi-frontend.css` — frontend stylesheet source
+- `assets/src/dm-roi-admin.js` — admin JavaScript source
+- `assets/src/dm-roi-admin.css` — admin stylesheet source
 
+Runtime files loaded by the plugin:
+
+- `assets/dm-roi-frontend.js` — frontend JavaScript
 - `assets/dm-roi-frontend.css` — frontend styles
 - `assets/dm-roi-admin.js` — admin JavaScript
 - `assets/dm-roi-admin.css` — admin styles
 
-No automated build command is documented yet. Do not assume a build tool or build command; verify the source and release workflow before documenting one.
+Keep the source and corresponding runtime files synchronized whenever code or styles change. Before releasing an update, verify the files and test the plugin on a clean WordPress installation.
+
+No automated build command is documented. Do not assume a build tool or build command without verifying the release workflow.
+
 
 ## Testing
 
