@@ -20,7 +20,6 @@ Source files:
 
 - `assets/src/dm-roi-frontend.js` — frontend JavaScript source
 - `assets/src/dm-roi-frontend.css` — frontend stylesheet source
-- `assets/src/dm-roi-admin.js` — admin JavaScript source
 - `assets/src/dm-roi-admin.css` — admin stylesheet source
 
 Runtime files loaded by the plugin:
