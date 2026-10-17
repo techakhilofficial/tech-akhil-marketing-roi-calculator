@@ -2,6 +2,10 @@ Tech Akhil Marketing ROI Calculator - Historical Changelog
 
 Older release history moved here to keep Readme.txt concise.
 
+= 2.9.8 =
+* Improved the admin live preview so appearance changes are reflected immediately.
+* Updated frontend and admin asset handling and maintained human-readable source files for the released assets.
+
 = 2.9.4 =
 * Passed explicit SQL placeholder arguments to prepared lead queries for static-analysis compatibility.
 * Documented why private admin lead queries are not cached.
