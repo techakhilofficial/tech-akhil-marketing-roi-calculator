@@ -1,0 +1,101 @@
+Tech Akhil Marketing ROI Calculator - Historical Changelog
+
+Older release history moved here to keep Readme.txt concise.
+
+= 2.9.4 =
+* Passed explicit SQL placeholder arguments to prepared lead queries for static-analysis compatibility.
+* Documented why private admin lead queries are not cached.
+
+= 2.9.3 =
+* Replaced dynamically assembled WHERE clauses with fixed SQL conditions and prepared values for lead filtering and CSV export.
+* Added an explicit concise short-description section to the readme.
+
+= 2.9.1 =
+* Run prepared lead queries directly at execution to avoid unprepared-query variable findings.
+* Added an explicit Short Description section for readme parser compatibility.
+
+= 2.9.0 =
+* Escaped CSV output findings with targeted PHPCS annotations while preserving valid CSV formatting.
+* Refactored lead list and export SQL to build prepared queries directly at execution with identifier and value placeholders.
+* Moved the short description into the standard readme description position for parser compatibility.
+
+= 2.8.9 =
+* Reworked leads queries to prepare SQL at execution and parameterize the row limit.
+* Added nonce verification to lead-filter requests and validated calendar dates.
+* Replaced direct file writes for CSV output with escaped CSV line generation and response output.
+* Added a plugin directory short description.
+
+= 2.8.8 =
+* Position the selected template icon and name above the calculator/results panels on desktop.
+* Correct icon box alignment and prevent clipping.
+
+= 2.8.6 =
+* Reformatted exported lead timestamps as readable text so Excel does not display date serials as hash marks in narrow columns.
+* Renamed the setup page heading and settings page title to Tech Akhil Marketing ROI Calculator.
+* Rebuilt Setup Documents as a professional in-admin guide for WordPress, Elementor, settings and lead reports; removed the duplicate marketing template list.
+* Added copy buttons beside individual template shortcodes.
+* Added consistent Tech Akhil branding and a website link at the bottom of Settings, Leads and Setup Documents pages.
+
+= 2.8.5 =
+* Fixed CSV export to stream a real CSV download through admin-post instead of returning the WordPress admin page HTML.
+* Fixed date filtering with explicit start-of-day and end-of-day bounds.
+* Added a template filter to the Leads page and applied the same filters to CSV export.
+* Stored the selected template with new lead records and added a best-effort template inference for older records.
+* Renamed the plugin admin menu to TechAkhil ROI with Settings, Leads and Setup Documents submenus.
+
+= 2.8.4 =
+* Redesigned admin settings as a responsive, tabbed workspace with template cards and bulk enable/disable controls.
+* Improved settings grouping, live preview and responsive styling.
+
+= 2.8.3 =
+* Removed the estimate/actual formula explanation text from the public results page.
+* Removed the Compare Campaigns button and comparison panel from the public calculator.
+* Individual template shortcodes now lock the calculator to that template and do not show the platform dropdown. The common shortcode keeps the enabled-template dropdown.
+
+Tech Akhil Marketing ROI Calculator helps site owners present a marketing performance estimate on a WordPress page and optionally capture a visitor's contact details. Calculations are estimates based on visitor-entered assumptions and are not a guarantee of campaign results.
+
+= Features =
+* Responsive frontend calculator.
+* ROI, ROAS, estimated revenue, profit, clicks, conversions, cost per conversion, and break-even ROAS estimates.
+* Lead capture with server-side validation, nonce verification, and temporary rate limiting.
+* Admin lead list with search/date filters and CSV export.
+* UTM source, medium, campaign, and landing page capture.
+* Admin setup page with shortcode copy and Gutenberg / Elementor instructions.
+* Appearance settings for title, button label, light/dark theme, button shape, and currency.
+* Template Manager with per-template enable/disable switches and individual accent colors. Disabled templates are hidden from the dropdown and blocked when used directly by shortcode.
+* Optional “Powered by Tech Akhil” footer link, disabled by default.
+* Clean input labels without intrusive help bubbles or repetitive explanatory boxes.
+* Separate agency/management fees, creative/production cost, and other cost fields.
+* Campaign comparison with a selector for previously calculated campaign snapshots saved in this browser. Campaign snapshots are stored locally in the current browser, not synchronized across devices.
+* Print dialog with the browser's “Save as PDF” option.
+* Optional WhatsApp link after a successful lead submission.
+* Starter templates for general marketing, paid ad channels, SEO, email, affiliate, e-commerce, and lead-generation campaigns. Template names are descriptive presets and do not indicate a live advertising-platform connection.
+
+= 2.8.1 =
+* Refined the calculator and admin visual styling to more closely match the supplied magenta dashboard reference, with cleaner spacing, metric cards, form controls, and responsive layout.
+
+= 2.7.0 =
+* Added template enable/disable controls and individual template accent colors; disabled templates are hidden and server-side blocked.
+* Added separate agency/management fees, creative/production costs, accessible input help controls, and optional Tech Akhil attribution footer.
+* Added template icons to the dropdown and complete template shortcode documentation.
+* Updated template colors dynamically when a visitor changes the selected template.
+* Improved campaign comparison handling to prevent adding an unchanged duplicate result.
+
+= 2.6.0 =
+* Replaced the one-size-fits-all form with platform- and mode-specific inputs for all 13 templates.
+* Added separate calculation paths for paid search, Meta/TikTok CPM-based forecasting, LinkedIn lead quality, SEO organic metrics, email funnel rates, affiliate commissions, ecommerce contribution profit, and lead-generation funnel metrics.
+* Added contextual outputs for organic position, email delivery/open/click rates, video views/completion, reach, engagement, qualified leads, customers, orders, commission, and gross profit.
+* Actual metrics remain manual inputs; no advertising platform API connection is included.
+
+= 2.5.0 =
+* Added estimate and actual-results calculation modes.
+* Actual mode calculates CPC, conversion rate, average value, ROI, ROAS, CPA/CPL, CTR and CPM from manually entered campaign results.
+* Clarified that platform templates label metrics and do not connect to advertising platforms or import benchmarks.
+
+= 2.0.0 =
+* Added advanced ROI, ROAS, profit, cost-per-conversion, and break-even ROAS metrics.
+* Added configurable title, button label, currency, theme, colors, and button shape.
+* Added admin setup guide with shortcode copy, Gutenberg, Elementor, and template instructions.
+* Added campaign comparison, browser print / Save as PDF, and starter marketing presets.
+* Added UTM attribution fields, lead search/date filters, and expanded CSV export.
+* Preserved the existing `[dm_roi_calculator]` shortcode and legacy lead columns.
