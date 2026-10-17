@@ -57,12 +57,24 @@ document.addEventListener('DOMContentLoaded', function () {
   (function () {
     var primary = document.getElementById('dm-primary'), card = document.getElementById('dm-card'), title = document.getElementById('dm-title'), buttonText = document.getElementById('dm-button-text'), radius = document.getElementById('dm-radius'), previewTitle = document.getElementById('dm-roi-preview-title'), previewButton = document.getElementById('dm-roi-preview-button'), preview = document.getElementById('dm-roi-preview');
     if (!primary || !card || !title || !buttonText || !radius || !previewTitle || !previewButton || !preview) return;
+    // Update the preview elements directly. This avoids relying on CSSOM access
+    // to the enqueued stylesheet, which can fail when assets are combined or restricted.
+    function safeColor(value, fallback) {
+      return /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
+    }
     function update() {
+      var primaryColor = safeColor(primary.value, '#b20d55');
+      var cardColor = safeColor(card.value, '#ffffff');
+      var buttonRadius = radius.value === 'pill' ? '999px' : (radius.value === 'square' ? '3px' : '8px');
       previewTitle.textContent = title.value || 'Digital Marketing ROI Calculator';
       previewButton.textContent = buttonText.value || 'Calculate My ROI';
-      previewTitle.style.color = primary.value; previewButton.style.background = primary.value; previewButton.style.borderColor = primary.value; preview.style.background = card.value;
-      previewButton.style.borderRadius = radius.value === 'pill' ? '999px' : (radius.value === 'square' ? '3px' : '8px');
+      preview.style.backgroundColor = cardColor;
+      previewTitle.style.color = primaryColor;
+      previewButton.style.backgroundColor = primaryColor;
+      previewButton.style.borderColor = primaryColor;
+      previewButton.style.borderRadius = buttonRadius;
     }
     [primary, card, title, buttonText, radius].forEach(function (field) { field.addEventListener('input', update); });
+    update();
   }());
 });
